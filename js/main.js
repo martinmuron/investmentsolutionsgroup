@@ -2,10 +2,71 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     
-    // Smooth scrolling for navigation links
+    // Mobile menu toggle functionality
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+    
+    if (mobileMenuToggle && navMenu) {
+        mobileMenuToggle.addEventListener('click', function() {
+            navMenu.classList.toggle('active');
+            
+            // Animate hamburger menu
+            const spans = this.querySelectorAll('span');
+            spans.forEach((span, index) => {
+                if (navMenu.classList.contains('active')) {
+                    if (index === 0) span.style.transform = 'rotate(45deg) translate(5px, 5px)';
+                    if (index === 1) span.style.opacity = '0';
+                    if (index === 2) span.style.transform = 'rotate(-45deg) translate(7px, -6px)';
+                } else {
+                    span.style.transform = 'none';
+                    span.style.opacity = '1';
+                }
+            });
+        });
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!mobileMenuToggle.contains(e.target) && !navMenu.contains(e.target)) {
+                navMenu.classList.remove('active');
+                const spans = mobileMenuToggle.querySelectorAll('span');
+                spans.forEach(span => {
+                    span.style.transform = 'none';
+                    span.style.opacity = '1';
+                });
+            }
+        });
+        
+        // Close mobile menu when clicking on a link
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                navMenu.classList.remove('active');
+                const spans = mobileMenuToggle.querySelectorAll('span');
+                spans.forEach(span => {
+                    span.style.transform = 'none';
+                    span.style.opacity = '1';
+                });
+            });
+        });
+    }
+    
+    // Set active navigation link based on current page
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     const navLinks = document.querySelectorAll('.nav-link');
     
     navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPage) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+    
+    // Smooth scrolling for anchor links (if any)
+    const anchorLinks = document.querySelectorAll('a[href^="#"]');
+    
+    anchorLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
             
@@ -28,10 +89,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const ctaButtons = document.querySelectorAll('.cta-button');
     
     ctaButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Scroll to contact section
+        button.addEventListener('click', function(e) {
+            // If it's already a link, let it work normally
+            if (this.tagName === 'A') {
+                return;
+            }
+            
+            // Otherwise, scroll to contact section
             const contactSection = document.querySelector('#contact');
             if (contactSection) {
+                e.preventDefault();
                 const headerHeight = document.querySelector('.header').offsetHeight;
                 const targetPosition = contactSection.offsetTop - headerHeight;
                 
@@ -92,11 +159,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Phone link functionality
+    const phoneLink = document.querySelector('a[href^="tel:"]');
+    if (phoneLink) {
+        phoneLink.addEventListener('click', function(e) {
+            setTimeout(() => {
+                console.log('Phone link clicked');
+            }, 100);
+        });
+    }
+    
     // Keyboard navigation support
     document.addEventListener('keydown', function(e) {
-        // Escape key to close any open modals (future feature)
+        // Escape key to close mobile menu
         if (e.key === 'Escape') {
-            console.log('Escape key pressed');
+            if (navMenu && navMenu.classList.contains('active')) {
+                navMenu.classList.remove('active');
+                const spans = mobileMenuToggle.querySelectorAll('span');
+                spans.forEach(span => {
+                    span.style.transform = 'none';
+                    span.style.opacity = '1';
+                });
+            }
         }
     });
     
